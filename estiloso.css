@@ -2,40 +2,32 @@
 
 :root {
     --bg-world: #000000;
-    --bg-panel: #0f0f0f;
+    --bg-panel: #1c1c1c; /* Cinza sólido original */
     --text-main: #FFFFFF;
     --text-narrator: #E0E0E0;
     --text-muted: #999999;
     --highlight-hover: #FFF3AD;
     --orange-disco: #FF8C00;
+    
+    /* Cores de Aspecto */
     --aspect-blood: #FF3B3B; --aspect-breath: #70C2FF; --aspect-doom: #4E8A5C;
     --aspect-light: #FFD352; --aspect-void: #2B59B3; --aspect-mind: #3ED1BA;
     --aspect-space: #FFFFFF; --aspect-time: #FF2E2E; --aspect-heart: #E33271;
     --aspect-hope: #FFF0D1; --aspect-life: #8BD96D; --aspect-rage: #B531EB;
-	/* CORES DAS CLASSES (Fase 2) */
-    --aspect-knight: #FFFFFF;
-    --aspect-mage: #FFFFFF;
-    --aspect-prince: #FFFFFF;
-    --aspect-witch: #FFFFFF;
-    --aspect-sylph: #FFFFFF;
-    --aspect-maid: #FFFFFF;
-    --aspect-rogue: #FFFFFF;
-    --aspect-page: #FFFFFF;
-    --aspect-thief: #FFFFFF;
-    --aspect-heir: #FFFFFF;
-    --aspect-seer: #FFFFFF;
-    --aspect-bard: #FFFFFF;
 }
 
+/* ESTRUTURA GERAL */
 body, html { 
     margin: 0; padding: 0; height: 100%; 
     background-color: var(--bg-world); 
-    color: var(--text-main); /* <- A cor principal voltou aqui */
-    overflow: hidden; 
+    color: var(--text-main);
     font-family: 'PT Serif', serif; 
+    display: flex; /* Faz os containers ficarem lado a lado */
+    flex-direction: row;
+    overflow: hidden; /* O scroll será interno nos containers */
 }
 
-/* TELA INICIAL */
+/* TELA DE INTRODUÇÃO (Cobre tudo) */
 #intro-container {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     display: flex; align-items: center; justify-content: center;
@@ -44,118 +36,124 @@ body, html {
 .intro-screen { max-width: 700px; text-align: center; display: flex; flex-direction: column; gap: 3rem; }
 .btn-bora-ver { 
     background: var(--orange-disco); color: #000; font-family: 'Oswald'; 
-    padding: 1.2rem 4rem; border: none; cursor: pointer; font-size: 1.6rem; 
+    padding: 1.2rem 3rem; border: none; cursor: pointer; font-size: 1.4rem; 
     font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
+    transition: transform 0.2s;
+}
+.btn-bora-ver:hover { transform: scale(1.05); }
+
+/* LADO ESQUERDO: EXIBIÇÃO DE RESULTADOS */
+#result-display {
+    flex: 1; /* Ocupa todo o espaço restante da esquerda */
+    display: none; /* Ativado pelo JS */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    height: 100vh;
+    overflow-y: auto;
+    background: #0a0a0a; /* Levemente diferente do painel para dar contraste */
+    border-right: 1px solid #333;
 }
 
-/* PAINEL DO QUIZ (DIREITA) */
+.aspect-png { 
+    max-width: 300px; 
+    height: auto; 
+    margin-bottom: 2rem; 
+    animation: aspectAppear 2s ease-out forwards; 
+}
+
+.result-text-main { max-width: 800px; text-align: left; }
+.result-text-main h1 { 
+    font-family: 'Oswald'; font-size: 3.5rem; letter-spacing: 5px; 
+    margin-bottom: 1rem; text-transform: uppercase; 
+}
+
+.descricao-usuario { 
+    font-size: 1.2rem; line-height: 1.8; color: #ccc; 
+    animation: fadeIn 1.5s ease-in forwards; 
+}
+
+/* LADO DIREITO: PAINEL DE DIÁLOGO (QUIZ) */
 #dialogue-panel {
+    width: 600px; /* Largura fixa para manter o estilo de coluna */
+    height: 100vh;
+    background: var(--bg-panel); 
     display: flex;
     flex-direction: column;
-    height: 95vh;
-    max-width: 650px;
-    margin-left: auto; /* Mantém na direita */
-    margin-right: 40px;
-    background: #1c1c1c; /* Cor cinza escura sólida restaurada */
-    padding: 20px;
     border-left: 1px solid #444;
     box-shadow: -10px 0 30px rgba(0,0,0,0.5);
     z-index: 10;
 }
+
 #history-container {
-    flex: 1; /* Ocupa todo o espaço disponível */
+    flex: 1;
     overflow-y: auto;
-    padding-bottom: 20px;
-    /* Efeito de fade no topo para parecer com DE */
-    mask-image: linear-gradient(to bottom, transparent, black 50px);
-}
-#options-container {
-    min-height: 200px; /* Garante que as opções tenham seu próprio "chão" */
-    max-height: 40vh;
-    overflow-y: auto;
-    border-top: 1px solid #333;
-    padding-top: 15px;
-    background: rgba(0, 0, 0, 0.8); /* Fundo semi-transparente para não confundir com o histórico */
-}
-
-.scenario-block {
-    margin-top: 50px; /* Espaçamento para o cenário respirar */
-    font-size: 1.2rem;
-    color: #ddd;
-    border-left: 2px solid #555;
-    padding-left: 15px;
-}
-
-.voice-header { font-family: 'Oswald', sans-serif; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 5px; }
-.voice-text { font-size: 1.25rem; line-height: 1.5; color: var(--text-main); }
-.scenario-block { font-size: 1.25rem; line-height: 1.6; color: var(--text-narrator); }
-.player-choice-block { color: #fff; font-size: 1.2rem; border-left: 3px solid #555; padding-left: 15px; margin: 1.2rem 0; font-style: italic; }
-
-/* INTERAÇÃO */
-.bottom-interaction-area { background: #080808; border-top: 1px solid #333; flex-shrink: 0; }
-.options-container { padding: 1.5rem 3.5rem 0.5rem 3.5rem; }
-.option-item { color: var(--text-muted); font-size: 1.1rem; padding: 0.4rem 0; cursor: pointer; line-height: 1.3; }
-.option-item:hover { color: var(--highlight-hover); }
-.thought-box { padding: 0 3.5rem 1.5rem 3.5rem; min-height: 3rem; font-style: italic; color: #888; visibility: hidden; opacity: 0; transition: 0.2s; }
-.thought-box.active { visibility: visible; opacity: 1; }
-
-/* RESULTADO (ESQUERDA) */
-#result-display {
-    display: none; /* JS controla isso */
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 60px; /* Aumente o padding para o texto não bater nas bordas */
-    height: 100vh;
-    width: 600px; /* Mesma largura do dialogue-panel para manter o design */
-    margin-left: auto;
-    margin-right: 40px;
-    overflow-y: auto; /* Permite scroll se a descrição for longa */
-}
-}
-
-.aspect-png { 
-    max-width: 350px; 
-    height: auto; 
-    margin-top: auto; /* Empurra para baixo para centralizar se sobrar espaço */
-    margin-bottom: 2rem; 
-    flex-shrink: 0; /* Impede a imagem de ser espremida se o texto for muito grande */
-    animation: aspectAppear 2s ease-out forwards; 
-}
-
-.result-text-main {
+    padding: 40px 30px;
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Dá espaço entre o título, a descrição e o botão */
+    gap: 20px;
+    /* Efeito de fade no topo */
+    mask-image: linear-gradient(to bottom, transparent, black 100px);
 }
 
-.result-text-main h1 { 
-    font-family: 'Oswald'; 
-    font-size: 3.5rem; 
-    letter-spacing: 5px; 
-    margin-bottom: 1rem; 
-    text-transform: uppercase; 
-    transition: color 0.3s ease;
+/* BLOCOS DE TEXTO NO HISTÓRICO */
+.scenario-block { 
+    font-size: 1.3rem; line-height: 1.6; color: var(--text-narrator); 
+    margin-top: 30px; border-left: 3px solid #555; padding-left: 20px;
+}
+.voice-block { margin-bottom: 15px; }
+.voice-header { font-family: 'Oswald', sans-serif; font-size: 0.9rem; letter-spacing: 1.5px; margin-bottom: 4px; }
+.voice-text { font-size: 1.2rem; line-height: 1.4; color: #fff; }
+.player-choice-block { color: var(--highlight-hover); font-size: 1.1rem; font-style: italic; margin: 15px 0; }
+
+/* OPÇÕES DE RESPOSTA */
+#options-container {
+    background: #111;
+    padding: 25px 30px;
+    border-top: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-.descricao-usuario { 
-    font-size: 1.2rem; 
-    line-height: 1.8; 
-    color: #ccc; 
-    opacity: 0; 
-    animation: fadeIn 1.5s ease-in forwards; 
-    animation-delay: 1s; 
+.option-item { 
+    color: var(--text-muted); 
+    font-size: 1.1rem; 
+    cursor: pointer; 
+    transition: 0.2s;
+    line-height: 1.4;
+}
+.option-item:hover { color: var(--highlight-hover); padding-left: 10px; }
+
+/* GRID DE RESULTADOS FINAIS (ENCICLOPÉDIA) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+.stats-grid div {
+    padding: 8px;
+    border: 1px solid #333;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: 0.2s;
+}
+.stats-grid div:hover {
+    background: #222;
+    border-color: #555;
 }
 
-/* Bônus: Uma barra de rolagem estilizada e escura para combinar com a UI */
-#result-display::-webkit-scrollbar { width: 8px; }
-#result-display::-webkit-scrollbar-track { background: transparent; }
-#result-display::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
-#result-display::-webkit-scrollbar-thumb:hover { background: #444; }
-
-/* UTILITÁRIOS */
+/* ANIMAÇÕES E UTILITÁRIOS */
 .hide-ui { display: none !important; }
-@keyframes aspectAppear { from { opacity: 0; transform: scale(0.8); filter: brightness(0); } to { opacity: 1; transform: scale(1); filter: brightness(1); } }
+@keyframes aspectAppear { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.entry-anim { animation: slideUp 0.5s ease-out forwards; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+.entry-anim { animation: slideUp 0.4s ease-out forwards; }
+
+/* SCROLLBAR ESTILIZADA */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
