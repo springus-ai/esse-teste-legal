@@ -18,18 +18,14 @@ function renderIntro() {
     const introBox = document.getElementById('intro-container');
     const diagPanel = document.getElementById('dialogue-panel');
     const resultDisplay = document.getElementById('result-display');
-    const bottomUI = document.querySelector('.bottom-interaction-area');
     
     if (diagPanel) diagPanel.classList.add('hide-ui');
     if (resultDisplay) resultDisplay.classList.add('hide-ui');
-    if (bottomUI) bottomUI.classList.add('hide-ui');
     if (!introBox) return;
 
     introBox.style.display = 'flex';
-    let content = "Análise de Classpect.";
-    if (typeof classpectDescriptions !== 'undefined' && classpectDescriptions["UI_Intro"]) {
-        content = classpectDescriptions["UI_Intro"].replace(/<button.*?>.*?<\/button>/gi, '');
-    }
+    let content = classpectDescriptions["UI_Intro"] ? classpectDescriptions["UI_Intro"].replace(/<button.*?>.*?<\/button>/gi, '') : "Análise de Classpect.";
+    
     introBox.innerHTML = `
         <div class="intro-screen entry-anim">
             <div class="intro-text">${content}</div>
@@ -45,11 +41,9 @@ function start() {
     
     const diagPanel = document.getElementById('dialogue-panel');
     const bottomUI = document.querySelector('.bottom-interaction-area');
-    const resultDisplay = document.getElementById('result-display');
     
-    if (diagPanel) diagPanel.classList.remove('hide-ui');
+    if (diagPanel) { diagPanel.style.display = 'flex'; diagPanel.classList.remove('hide-ui'); }
     if (bottomUI) bottomUI.classList.remove('hide-ui');
-    if (resultDisplay) resultDisplay.classList.add('hide-ui');
     
     state.stage = "aspect_quiz";
     renderElysium();
@@ -73,98 +67,52 @@ function renderElysium() {
     
     const sDiv = document.createElement('div');
     sDiv.className = 'scenario-block entry-anim';
-    sDiv.textContent = q.scenario || q.t || "Cenário não encontrado.";
+    sDiv.textContent = q.scenario;
     history.appendChild(sDiv);
-
     sDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     let delay = 1;
-    if (q.voices && Array.isArray(q.voices)) {
-        q.voices.forEach(v => {
-            setTimeout(() => {
-                const vDiv = document.createElement('div');
-                vDiv.className = 'voice-block entry-anim';
-                const aspectColor = `var(--aspect-${v.aspect.toLowerCase()})`;
-                vDiv.innerHTML = `
-                    <div class="voice-header" style="color: ${aspectColor} !important;">
-                        ▶ ${v.aspect.toUpperCase()} [${v.checkName || v.check || 'Sensor'}]
-                    </div>
-                    <div class="voice-text">"${v.text}"</div>
-                `;
-                history.appendChild(vDiv);
-                history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
-            }, delay * 500);
-            delay++;
-        });
-    }
+    q.voices.forEach(v => {
+        setTimeout(() => {
+            const vDiv = document.createElement('div');
+            vDiv.className = 'voice-block entry-anim';
+            vDiv.innerHTML = `<div class="voice-header" style="color: var(--aspect-${v.aspect.toLowerCase()}) !important;">▶ ${v.aspect.toUpperCase()}</div><div class="voice-text">"${v.text}"</div>`;
+            history.appendChild(vDiv);
+            history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
+        }, delay * 500);
+        delay++;
+    });
 
     setTimeout(() => {
-        const optsArray = q.options || q.opts || [];
-        optsArray.forEach((opt, idx) => {
+        q.options.forEach((opt, idx) => {
             const b = document.createElement('div');
             b.className = 'option-item entry-anim';
             b.innerHTML = `<span>${idx + 1}. ${opt.dialogue}</span>`;
             b.onclick = () => { if(!isProcessing) handleChoice(opt, true); };
             options.appendChild(b);
         });
-
-        const skipBtn = document.createElement('div');
-        skipBtn.className = 'option-item entry-anim';
-        skipBtn.innerHTML = `<span>${optsArray.length + 1}. Nenhuma das anteriores.</span>`;
-        skipBtn.onclick = () => { if(!isProcessing) handleChoice({ dialogue: "Nenhuma das anteriores.", weights: {} }, true); };
-        options.appendChild(skipBtn);
-
-        if (stateHistory.length > 0) {
-            const backBtn = document.createElement('div');
-            backBtn.className = 'option-item entry-anim';
-            backBtn.style.color = '#ff6666'; 
-            backBtn.innerHTML = `<span>[ VOLTAR PARA A PERGUNTA ANTERIOR ]</span>`;
-            backBtn.onclick = () => { if(!isProcessing) goBack(); };
-            options.appendChild(backBtn);
-        }
-
         options.classList.remove('disabled');
         isProcessing = false;
-        setTimeout(() => { sDiv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
     }, delay * 550);
 }
 
 function handleChoice(opt, isAspectPhase) {
     stateHistory.push(JSON.parse(JSON.stringify(state)));
     const history = document.getElementById('history-container');
-    const txt = opt.dialogue || opt.txt || "Opção escolhida";
-    
     const choiceDiv = document.createElement('div');
     choiceDiv.className = 'player-choice-block entry-anim';
-    choiceDiv.innerHTML = `VOCÊ — ${txt}`;
+    choiceDiv.innerHTML = `VOCÊ — ${opt.dialogue}`;
     history.appendChild(choiceDiv);
 
-    const weights = opt.weights || opt.w || {};
+    const weights = opt.weights || {};
     for (let key in weights) {
-        if (isAspectPhase && state.aspectScores[key] !== undefined) {
-            state.aspectScores[key] += weights[key];
-        } else if (!isAspectPhase && state.classScores[key] !== undefined) {
-            state.classScores[key] += weights[key];
-        }
+        if (isAspectPhase) state.aspectScores[key] += weights[key];
+        else state.classScores[key] += weights[key];
     }
 
-    if (isAspectPhase) {
-        state.currentIndex++;
-        save();
-        renderElysium();
-    } else {
-        state.currentClassIndex++;
-        save();
-        renderClassQuiz();
-    }
-}
-
-function goBack() {
-    if (stateHistory.length === 0) return;
-    state = stateHistory.pop();
+    if (isAspectPhase) { state.currentIndex++; renderElysium(); }
+    else { state.currentClassIndex++; renderClassQuiz(); }
     save();
-    if (state.stage === "aspect_quiz") renderElysium();
-    else if (state.stage === "class_quiz") renderClassQuiz();
 }
 
 function finishAspectPhase() {
@@ -173,41 +121,33 @@ function finishAspectPhase() {
     state.stage = "aspect_result";
     save();
     
-    // MUDANÇA AQUI: Esconde o painel de chat para não encavalar
-    const diagPanel = document.getElementById('dialogue-panel');
-    if (diagPanel) diagPanel.classList.add('hide-ui');
-
+    // Mostra o resultado na ESQUERDA
     const resultDisplay = document.getElementById('result-display');
-    const bottomUI = document.querySelector('.bottom-interaction-area');
-    if (bottomUI) bottomUI.classList.add('hide-ui');
+    resultDisplay.style.display = 'flex';
+    resultDisplay.classList.remove('hide-ui');
 
-    if (resultDisplay) {
-        resultDisplay.classList.remove('hide-ui');
-        resultDisplay.style.display = 'flex';
-        const suaDescricao = classpectDescriptions[state.dominantAspect] || "Descrição pendente."; 
-        resultDisplay.innerHTML = `
-            <img src="vamover/${state.dominantAspect}.png" class="aspect-png" onerror="this.style.opacity='0'; this.src=''">
-            <div class="result-text-main entry-anim">
-                <h1 style="color: var(--aspect-${state.dominantAspect.toLowerCase()})">${state.dominantAspect}</h1>
-                <div class="descricao-usuario">${suaDescricao}</div>
-                <button class="btn-bora-ver" onclick="startClassPhase()">Quero descobrir a minha Classe.</button>
-            </div>
-        `;
-    }
+    const aspect = state.dominantAspect;
+    const suaDescricao = classpectDescriptions[aspect] || "Descrição pendente."; 
+    resultDisplay.innerHTML = `
+        <img src="vamover/${aspect}.png" class="aspect-png" onerror="this.style.opacity='0'">
+        <div class="result-text-main entry-anim">
+            <h1 style="color: var(--aspect-${aspect.toLowerCase()})">${aspect}</h1>
+            <div class="descricao-usuario">${suaDescricao}</div>
+            <button class="btn-bora-ver" onclick="startClassPhase()" style="margin-top:20px;">Quero descobrir a minha Classe.</button>
+        </div>`;
+
+    // O Chat na DIREITA continua visível
+    const history = document.getElementById('history-container');
+    history.innerHTML += `<div class="scenario-block" style="border-color: var(--aspect-${aspect.toLowerCase()})">▶ SINCRONIZAÇÃO DE ASPECTO CONCLUÍDA: ${aspect}</div>`;
+    history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
 }
 
 function startClassPhase() {
     state.stage = "class_quiz";
     save();
-    
-    // MUDANÇA AQUI: Esconde o resultado e devolve o painel de chat
-    document.getElementById('result-display').classList.add('hide-ui');
-    
-    const diagPanel = document.getElementById('dialogue-panel');
-    if (diagPanel) diagPanel.classList.remove('hide-ui');
-    
-    const bottomUI = document.querySelector('.bottom-interaction-area');
-    if (bottomUI) bottomUI.classList.remove('hide-ui');
+    // Limpamos o botão de transição do lado esquerdo, mas mantemos o texto lá
+    const btn = document.querySelector('#result-display .btn-bora-ver');
+    if (btn) btn.remove();
     
     renderClassQuiz();
 }
@@ -229,107 +169,77 @@ function renderClassQuiz() {
 
     const sDiv = document.createElement('div');
     sDiv.className = 'scenario-block entry-anim';
-    sDiv.textContent = q.scenario || q.t || "Cenário não encontrado.";
+    sDiv.textContent = q.scenario;
     history.appendChild(sDiv);
-
     sDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     let delay = 1;
-    if (q.voices && Array.isArray(q.voices)) {
-        q.voices.forEach(v => {
-            setTimeout(() => {
-                const vDiv = document.createElement('div');
-                vDiv.className = 'voice-block entry-anim';
-                const classColor = `var(--aspect-${v.aspect.toLowerCase()})`;
-                vDiv.innerHTML = `
-                    <div class="voice-header" style="color: ${classColor} !important;">▶ ${v.aspect.toUpperCase()}</div>
-                    <div class="voice-text">"${v.text}"</div>
-                `;
-                history.appendChild(vDiv);
-                history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
-            }, delay * 500);
-            delay++;
-        });
-    }
+    q.voices.forEach(v => {
+        setTimeout(() => {
+            const vDiv = document.createElement('div');
+            vDiv.className = 'voice-block entry-anim';
+            vDiv.innerHTML = `<div class="voice-header" style="color: var(--aspect-${v.aspect.toLowerCase()}) !important;">▶ ${v.aspect.toUpperCase()}</div><div class="voice-text">"${v.text}"</div>`;
+            history.appendChild(vDiv);
+            history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
+        }, delay * 500);
+        delay++;
+    });
 
     setTimeout(() => {
-        const optsArray = q.options || q.opts || [];
-        optsArray.forEach((opt, idx) => {
+        q.options.forEach((opt, idx) => {
             const b = document.createElement('div');
             b.className = 'option-item entry-anim';
             b.innerHTML = `<span>${idx + 1}. ${opt.dialogue}</span>`;
             b.onclick = () => { if(!isProcessing) handleChoice(opt, false); };
             options.appendChild(b);
         });
-
-        const skipBtn = document.createElement('div');
-        skipBtn.className = 'option-item entry-anim';
-        skipBtn.innerHTML = `<span>${optsArray.length + 1}. Nenhuma das anteriores.</span>`;
-        skipBtn.onclick = () => { if(!isProcessing) handleChoice({ dialogue: "Nenhuma das anteriores.", weights: {} }, false); };
-        options.appendChild(skipBtn);
-
-        if (stateHistory.length > 0) {
-            const backBtn = document.createElement('div');
-            backBtn.className = 'option-item entry-anim';
-            backBtn.style.color = '#ff6666'; 
-            backBtn.innerHTML = `<span>[ VOLTAR PARA A PERGUNTA ANTERIOR ]</span>`;
-            backBtn.onclick = () => { if(!isProcessing) goBack(); };
-            options.appendChild(backBtn);
-        }
-
         options.classList.remove('disabled');
         isProcessing = false;
-        setTimeout(() => { sDiv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
     }, delay * 550);
 }
 
 function finishClassPhase() {
     const classScores = Object.entries(state.classScores).sort((a, b) => b[1] - a[1]);
-    const aspectScores = Object.entries(state.aspectScores).sort((a, b) => b[1] - a[1]);
-
     state.dominantClass = classScores[0][0];
     viewingClass = state.dominantClass;
     viewingAspect = state.dominantAspect;
-
     state.stage = "final_result";
     save();
     
-    // MUDANÇA AQUI: Esconde o chat no resultado final também
-    const diagPanel = document.getElementById('dialogue-panel');
-    if (diagPanel) diagPanel.classList.add('hide-ui');
-    
-    const bottomUI = document.querySelector('.bottom-interaction-area');
-    if (bottomUI) bottomUI.classList.add('hide-ui');
-    
     updateResultDisplay();
-    // (Opcional) Você pode manter o histórico visível se quiser, 
-    // mas para evitar o erro da imagem, o melhor é esconder o painel.
+
+    const history = document.getElementById('history-container');
+    const aspectScores = Object.entries(state.aspectScores).sort((a, b) => b[1] - a[1]);
+
+    let html = `<div class="scenario-block"><h2>▶ ANÁLISE COMPLETA</h2><p>Identidade: <strong>${viewingClass} of ${viewingAspect}</strong></p></div>`;
+    
+    html += `<div style="padding:10px;"><h3>COEFICIENTE DE CLASSE:</h3>`;
+    classScores.forEach(([cls, pts]) => {
+        html += `<div onclick="changeViewClass('${cls}')" style="cursor:pointer; padding:5px; border:1px solid #333; margin:2px; color:var(--aspect-${cls.toLowerCase()})">${cls}: ${pts}</div>`;
+    });
+    
+    html += `<h3 style="margin-top:20px;">COEFICIENTE DE ASPECTO:</h3>`;
+    aspectScores.forEach(([asp, pts]) => {
+        html += `<div onclick="changeViewAspect('${asp}')" style="cursor:pointer; padding:5px; border:1px solid #333; margin:2px; color:var(--aspect-${asp.toLowerCase()})">${asp}: ${pts}</div>`;
+    });
+    html += `</div>`;
+    
+    history.innerHTML += html;
+    history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
 }
 
-function changeViewAspect(newAspect) { viewingAspect = newAspect; updateResultDisplay(); }
-function changeViewClass(newClass) { viewingClass = newClass; updateResultDisplay(); }
+function changeViewAspect(asp) { viewingAspect = asp; updateResultDisplay(); }
+function changeViewClass(cls) { viewingClass = cls; updateResultDisplay(); }
 
 function updateResultDisplay() {
     const resultDisplay = document.getElementById('result-display');
-    if (!resultDisplay) return;
-
-    resultDisplay.classList.remove('hide-ui');
-    resultDisplay.style.display = 'flex';
-
-    const aspectLower = viewingAspect.toLowerCase();
     const descKey = `${viewingClass}:${viewingAspect}`;
-    let suaDescricao = classpectDescriptions[descKey];
-
-    if (!suaDescricao) {
-         const descClass = classpectDescriptions[viewingClass];
-         const descAspect = classpectDescriptions[viewingAspect];
-         suaDescricao = (descClass || "") + (descAspect || "");
-    }
+    let suaDescricao = classpectDescriptions[descKey] || (classpectDescriptions[viewingClass] || "") + (classpectDescriptions[viewingAspect] || "");
 
     resultDisplay.innerHTML = `
         <img src="vamover/${viewingAspect}.png" class="aspect-png" onerror="this.style.opacity='0'">
         <div class="result-text-main entry-anim">
-            <h1 style="color: var(--aspect-${aspectLower})">${viewingClass.toUpperCase()} OF ${viewingAspect.toUpperCase()}</h1>
+            <h1 style="color: var(--aspect-${viewingAspect.toLowerCase()})">${viewingClass.toUpperCase()} OF ${viewingAspect.toUpperCase()}</h1>
             <div class="descricao-usuario">${suaDescricao}</div>
         </div>
     `;
