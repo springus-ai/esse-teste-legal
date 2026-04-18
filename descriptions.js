@@ -299,7 +299,7 @@ const classpectDescriptions = {
         <h3>WITCH OF VOID (BRUXA/BRUXO DO VAZIO)</h3>
         <p><strong>Que Manipula o Vazio.</strong></p>
         <p>Para você, a verdade é opcional. Você manipula a ignorância e o mistério com maestria. Você é capaz de fazer coisas (ou pessoas) desaparecerem, ou criar mentiras tão convincentes que elas preenchem o vazio da realidade.</p>
-        <p>Sua "Resposta" é a reescrita seletiva. Se algo na realidade te machuca, você simplesmente finge que não existe com tanta força que, para todos os efeitos, deixa de existir. Você confunde, despista e altera o que é conhecido. O perigo é você se perder na própria teia de segredos e esquecer o que é real.</p>
+        <p>Sua resposta é a reescrita seletiva. Se algo na realidade te machuca, você simplesmente finge que não existe com tanta força que, para todos os efeitos, deixa de existir. Você confunde, despista e altera o que é conhecido. O perigo é você se perder na própria teia de segredos e esquecer o que é real.</p>
     `,
     "Prince:Void": `
         <h3>PRINCE OF VOID (PRÍNCIPE/PRINCESA DO VAZIO)</h3>
@@ -657,7 +657,7 @@ const classpectDescriptions = {
         <h3>THIEF OF MIND (LADRÃO/LADRA DA MENTE)</h3>
         <p><strong>Que Rouba a Mente (para si).</strong></p>
         <p>Você confia no seu julgamento e *apenas* no seu julgamento. Em grupo, você tende a atropelar as opiniões alheias e tomar as decisões por todos, porque, francamente, você acha que os outros vão fazer besteira. Você rouba a agência e a escolha das pessoas "para o bem delas" (ou para o seu).</p>
-        <p>Sua "Resposta" é a arrogância intelectual. Você monopoliza a estratégia. Você pode se apropriar das ideias dos outros e melhorá-las, assumindo o crédito. É um mecanismo de controle: se você detém as escolhas, ninguém pode te colocar numa situação que você não previu.</p>
+        <p>Sua resposta é a arrogância intelectual. Você monopoliza a estratégia. Você pode se apropriar das ideias dos outros e melhorá-las, assumindo o crédito. É um mecanismo de controle: se você detém as escolhas, ninguém pode te colocar numa situação que você não previu.</p>
     `,
     "Mage:Mind": `
         <h3>MAGE OF MIND (MAGO/MAGA DA MENTE)</h3>
