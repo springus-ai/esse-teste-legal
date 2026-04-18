@@ -121,34 +121,35 @@ function finishAspectPhase() {
     state.stage = "aspect_result";
     save();
     
-    // Mostra o resultado na ESQUERDA
+    // ATIVA O RESULTADO NA ESQUERDA
     const resultDisplay = document.getElementById('result-display');
     resultDisplay.style.display = 'flex';
     resultDisplay.classList.remove('hide-ui');
 
     const aspect = state.dominantAspect;
     const suaDescricao = classpectDescriptions[aspect] || "Descrição pendente."; 
+    
     resultDisplay.innerHTML = `
         <img src="vamover/${aspect}.png" class="aspect-png" onerror="this.style.opacity='0'">
-        <div class="result-text-main entry-anim">
-            <h1 style="color: var(--aspect-${aspect.toLowerCase()})">${aspect}</h1>
-            <div class="descricao-usuario">${suaDescricao}</div>
-            <button class="btn-bora-ver" onclick="startClassPhase()" style="margin-top:20px;">Quero descobrir a minha Classe.</button>
-        </div>`;
+        <div class="result-text-main">
+            <h1 style="color: var(--aspect-${aspect.toLowerCase()}); font-family: 'Oswald'; font-size: 4rem;">${aspect}</h1>
+            <div class="descricao-usuario" style="font-size: 1.2rem; line-height: 1.8; color: #ccc;">${suaDescricao}</div>
+            <button class="btn-bora-ver" onclick="startClassPhase()" style="margin-top: 30px; background: #FF8C00; padding: 15px 30px; border: none; cursor: pointer; font-family: 'Oswald'; font-weight: bold; text-transform: uppercase;">Quero descobrir a minha Classe</button>
+        </div>
+    `;
 
-    // O Chat na DIREITA continua visível
+    // CHAT NA DIREITA CONTINUA ATIVO
     const history = document.getElementById('history-container');
-    history.innerHTML += `<div class="scenario-block" style="border-color: var(--aspect-${aspect.toLowerCase()})">▶ SINCRONIZAÇÃO DE ASPECTO CONCLUÍDA: ${aspect}</div>`;
+    history.innerHTML += `<div class="scenario-block" style="border-color: var(--aspect-${aspect.toLowerCase()})">▶ ALINHAMENTO DE ASPECTO CONCLUÍDO: ${aspect.toUpperCase()}</div>`;
     history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
 }
 
 function startClassPhase() {
     state.stage = "class_quiz";
     save();
-    // Limpamos o botão de transição do lado esquerdo, mas mantemos o texto lá
+    // Remove o botão do lado esquerdo para não confundir
     const btn = document.querySelector('#result-display .btn-bora-ver');
     if (btn) btn.remove();
-    
     renderClassQuiz();
 }
 
@@ -208,28 +209,22 @@ function finishClassPhase() {
     
     updateResultDisplay();
 
+    // No Chat (Direita), mostramos os pontos para navegação
     const history = document.getElementById('history-container');
     const aspectScores = Object.entries(state.aspectScores).sort((a, b) => b[1] - a[1]);
 
-    let html = `<div class="scenario-block"><h2>▶ ANÁLISE COMPLETA</h2><p>Identidade: <strong>${viewingClass} of ${viewingAspect}</strong></p></div>`;
-    
-    html += `<div style="padding:10px;"><h3>COEFICIENTE DE CLASSE:</h3>`;
+    let html = `<div class="scenario-block"><h2>▶ ANÁLISE FINALIZADA</h2><p>Identidade: ${viewingClass} of ${viewingAspect}</p></div>`;
+    html += `<div style="padding: 20px;"><h4>COEFICIENTES:</h4>`;
     classScores.forEach(([cls, pts]) => {
-        html += `<div onclick="changeViewClass('${cls}')" style="cursor:pointer; padding:5px; border:1px solid #333; margin:2px; color:var(--aspect-${cls.toLowerCase()})">${cls}: ${pts}</div>`;
+        html += `<div onclick="changeViewClass('${cls}')" style="cursor:pointer; color:var(--aspect-${cls.toLowerCase()}); margin-bottom:5px;">${cls}: ${pts}</div>`;
     });
-    
-    html += `<h3 style="margin-top:20px;">COEFICIENTE DE ASPECTO:</h3>`;
     aspectScores.forEach(([asp, pts]) => {
-        html += `<div onclick="changeViewAspect('${asp}')" style="cursor:pointer; padding:5px; border:1px solid #333; margin:2px; color:var(--aspect-${asp.toLowerCase()})">${asp}: ${pts}</div>`;
+        html += `<div onclick="changeViewAspect('${asp}')" style="cursor:pointer; color:var(--aspect-${asp.toLowerCase()}); margin-top:5px;">${asp}: ${pts}</div>`;
     });
     html += `</div>`;
-    
     history.innerHTML += html;
     history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
 }
-
-function changeViewAspect(asp) { viewingAspect = asp; updateResultDisplay(); }
-function changeViewClass(cls) { viewingClass = cls; updateResultDisplay(); }
 
 function updateResultDisplay() {
     const resultDisplay = document.getElementById('result-display');
@@ -237,10 +232,10 @@ function updateResultDisplay() {
     let suaDescricao = classpectDescriptions[descKey] || (classpectDescriptions[viewingClass] || "") + (classpectDescriptions[viewingAspect] || "");
 
     resultDisplay.innerHTML = `
-        <img src="vamover/${viewingAspect}.png" class="aspect-png" onerror="this.style.opacity='0'">
-        <div class="result-text-main entry-anim">
-            <h1 style="color: var(--aspect-${viewingAspect.toLowerCase()})">${viewingClass.toUpperCase()} OF ${viewingAspect.toUpperCase()}</h1>
-            <div class="descricao-usuario">${suaDescricao}</div>
+        <img src="vamover/${viewingAspect}.png" class="aspect-png">
+        <div class="result-text-main">
+            <h1 style="color: var(--aspect-${viewingAspect.toLowerCase()}); font-family: 'Oswald'; font-size: 3.5rem;">${viewingClass.toUpperCase()} OF ${viewingAspect.toUpperCase()}</h1>
+            <div class="descricao-usuario" style="font-size: 1.1rem; line-height: 1.7; color: #ccc;">${suaDescricao}</div>
         </div>
     `;
 }
