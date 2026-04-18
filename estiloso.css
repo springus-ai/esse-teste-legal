@@ -1,50 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&family=Oswald:wght@500;700&display=swap');
 
-:root {
-    --bg-world: #000000;
-    --bg-panel: #1c1c1c; /* Cinza sólido original */
-    --text-main: #FFFFFF;
-    --text-narrator: #E0E0E0;
-    --text-muted: #999999;
-    --highlight-hover: #FFF3AD;
-    --orange-disco: #FF8C00;
-    
-    /* Cores de Aspecto */
-    --aspect-blood: #FF3B3B; --aspect-breath: #70C2FF; --aspect-doom: #4E8A5C;
-    --aspect-light: #FFD352; --aspect-void: #2B59B3; --aspect-mind: #3ED1BA;
-    --aspect-space: #FFFFFF; --aspect-time: #FF2E2E; --aspect-heart: #E33271;
-    --aspect-hope: #FFF0D1; --aspect-life: #8BD96D; --aspect-rage: #B531EB;
-}
-
-/* ESTRUTURA GERAL */
 body, html { 
     margin: 0; padding: 0; height: 100%; 
-    background-color: var(--bg-world); 
-    color: var(--text-main);
+    background-color: #000; 
+    color: #fff;
     font-family: 'PT Serif', serif; 
-    display: flex; /* Faz os containers ficarem lado a lado */
-    flex-direction: row;
-    overflow: hidden; /* O scroll será interno nos containers */
+    display: flex; 
+    flex-direction: row; /* Coloca os itens lado a lado */
+    overflow: hidden; 
 }
 
-/* TELA DE INTRODUÇÃO (Cobre tudo) */
+/* TELA DE INTRO (Cobre tudo) */
 #intro-container {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     display: flex; align-items: center; justify-content: center;
     background: #000; z-index: 999;
 }
-.intro-screen { max-width: 700px; text-align: center; display: flex; flex-direction: column; gap: 3rem; }
-.btn-bora-ver { 
-    background: var(--orange-disco); color: #000; font-family: 'Oswald'; 
-    padding: 1.2rem 3rem; border: none; cursor: pointer; font-size: 1.4rem; 
-    font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
-    transition: transform 0.2s;
-}
-.btn-bora-ver:hover { transform: scale(1.05); }
 
-/* LADO ESQUERDO: EXIBIÇÃO DE RESULTADOS */
+/* LADO ESQUERDO: RESULTADOS E IMAGENS */
 #result-display {
-    flex: 1; /* Ocupa todo o espaço restante da esquerda */
+    flex: 1; /* Ocupa o espaço da esquerda */
     display: none; /* Ativado pelo JS */
     flex-direction: column;
     align-items: center;
@@ -52,37 +27,18 @@ body, html {
     padding: 60px;
     height: 100vh;
     overflow-y: auto;
-    background: #0a0a0a; /* Levemente diferente do painel para dar contraste */
-    border-right: 1px solid #333;
+    background: #0a0a0a;
 }
 
-.aspect-png { 
-    max-width: 300px; 
-    height: auto; 
-    margin-bottom: 2rem; 
-    animation: aspectAppear 2s ease-out forwards; 
-}
-
-.result-text-main { max-width: 800px; text-align: left; }
-.result-text-main h1 { 
-    font-family: 'Oswald'; font-size: 3.5rem; letter-spacing: 5px; 
-    margin-bottom: 1rem; text-transform: uppercase; 
-}
-
-.descricao-usuario { 
-    font-size: 1.2rem; line-height: 1.8; color: #ccc; 
-    animation: fadeIn 1.5s ease-in forwards; 
-}
-
-/* LADO DIREITO: PAINEL DE DIÁLOGO (QUIZ) */
+/* LADO DIREITO: O TESTE (ESTILO DISCO ELYSIUM) */
 #dialogue-panel {
-    width: 600px; /* Largura fixa para manter o estilo de coluna */
+    width: 600px; /* Largura fixa da coluna de texto */
     height: 100vh;
-    background: var(--bg-panel); 
+    background: #1c1c1c; /* Cinza sólido restaurado */
     display: flex;
     flex-direction: column;
     border-left: 1px solid #444;
-    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    box-shadow: -15px 0 35px rgba(0,0,0,0.8);
     z-index: 10;
 }
 
@@ -93,67 +49,31 @@ body, html {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    /* Efeito de fade no topo */
     mask-image: linear-gradient(to bottom, transparent, black 100px);
 }
 
-/* BLOCOS DE TEXTO NO HISTÓRICO */
-.scenario-block { 
-    font-size: 1.3rem; line-height: 1.6; color: var(--text-narrator); 
-    margin-top: 30px; border-left: 3px solid #555; padding-left: 20px;
-}
-.voice-block { margin-bottom: 15px; }
-.voice-header { font-family: 'Oswald', sans-serif; font-size: 0.9rem; letter-spacing: 1.5px; margin-bottom: 4px; }
-.voice-text { font-size: 1.2rem; line-height: 1.4; color: #fff; }
-.player-choice-block { color: var(--highlight-hover); font-size: 1.1rem; font-style: italic; margin: 15px 0; }
-
-/* OPÇÕES DE RESPOSTA */
 #options-container {
     background: #111;
     padding: 25px 30px;
     border-top: 1px solid #333;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
-.option-item { 
-    color: var(--text-muted); 
-    font-size: 1.1rem; 
-    cursor: pointer; 
-    transition: 0.2s;
-    line-height: 1.4;
+/* ESTILIZAÇÃO DOS TEXTOS */
+.scenario-block { 
+    font-size: 1.3rem; line-height: 1.6; color: #E0E0E0; 
+    margin-top: 40px; border-left: 3px solid #555; padding-left: 20px;
 }
-.option-item:hover { color: var(--highlight-hover); padding-left: 10px; }
+.voice-block { margin-bottom: 10px; }
+.voice-header { font-family: 'Oswald', sans-serif; font-size: 0.9rem; letter-spacing: 1.5px; }
+.voice-text { font-size: 1.25rem; color: #fff; }
+.option-item { color: #999; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+.option-item:hover { color: #FFF3AD; padding-left: 10px; }
 
-/* GRID DE RESULTADOS FINAIS (ENCICLOPÉDIA) */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-top: 15px;
-}
-.stats-grid div {
-    padding: 8px;
-    border: 1px solid #333;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    transition: 0.2s;
-}
-.stats-grid div:hover {
-    background: #222;
-    border-color: #555;
-}
+/* ANIMAÇÃO DA IMAGEM */
+.aspect-png { max-width: 350px; margin-bottom: 2rem; animation: aspectAppear 2s ease-out; }
+@keyframes aspectAppear { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
-/* ANIMAÇÕES E UTILITÁRIOS */
 .hide-ui { display: none !important; }
-@keyframes aspectAppear { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-.entry-anim { animation: slideUp 0.4s ease-out forwards; }
-
-/* SCROLLBAR ESTILIZADA */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
