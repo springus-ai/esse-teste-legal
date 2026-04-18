@@ -52,9 +52,16 @@ body, html {
 #dialogue-panel {
     display: flex;
     flex-direction: column;
-    height: 80vh; /* Altura fixa para a área de diálogo */
-    max-width: 600px;
-    margin: 0 auto;
+    height: 90vh; /* Altura do painel */
+    max-width: 600px; /* Largura da coluna de texto */
+    
+    /* MUDANÇA AQUI: */
+    margin-left: auto;   /* Empurra tudo para a direita */
+    margin-right: 50px;  /* Dá um respiro da borda da tela */
+    
+    background: rgba(0, 0, 0, 0.7); /* Deixa o fundo um pouco transparente para o clima DE */
+    padding: 20px;
+    border-left: 1px solid #333; /* Uma linha fina na esquerda para delimitar */
 }
 #history-container {
     flex: 1; /* Ocupa todo o espaço disponível */
