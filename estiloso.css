@@ -101,21 +101,17 @@ body, html {
 
 /* RESULTADO (ESQUERDA) */
 #result-display {
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 65vw; 
+    display: none; /* JS controla isso */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px; /* Aumente o padding para o texto não bater nas bordas */
     height: 100vh;
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: flex-start; /* Evita que a imagem seja empurrada para fora do teto */
-    padding: 4rem 2rem; /* Dá um respiro para o texto não colar nas bordas */
-    box-sizing: border-box; /* Garante que o padding não quebre o tamanho da tela */
-    overflow-y: auto; /* A MÁGICA AQUI: Permite rolar a tela! */
-    z-index: 5; 
-    background: radial-gradient(circle, #0a0a0a 0%, #000 100%);
-    scroll-behavior: smooth;
+    width: 600px; /* Mesma largura do dialogue-panel para manter o design */
+    margin-left: auto;
+    margin-right: 40px;
+    overflow-y: auto; /* Permite scroll se a descrição for longa */
+}
 }
 
 .aspect-png { 
@@ -127,12 +123,10 @@ body, html {
     animation: aspectAppear 2s ease-out forwards; 
 }
 
-.result-text-main { 
-    max-width: 600px; 
-    text-align: center; 
-    padding: 0 2rem; 
-    color: #fff; 
-    margin-bottom: auto; /* Empurra para cima para centralizar se sobrar espaço */
+.result-text-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Dá espaço entre o título, a descrição e o botão */
 }
 
 .result-text-main h1 { 
