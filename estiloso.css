@@ -52,16 +52,15 @@ body, html {
 #dialogue-panel {
     display: flex;
     flex-direction: column;
-    height: 90vh; /* Altura do painel */
-    max-width: 600px; /* Largura da coluna de texto */
-    
-    /* MUDANÇA AQUI: */
-    margin-left: auto;   /* Empurra tudo para a direita */
-    margin-right: 50px;  /* Dá um respiro da borda da tela */
-    
-    background: rgba(0, 0, 0, 0.7); /* Deixa o fundo um pouco transparente para o clima DE */
+    height: 95vh;
+    max-width: 650px;
+    margin-left: auto; /* Mantém na direita */
+    margin-right: 40px;
+    background: #1c1c1c; /* Cor cinza escura sólida restaurada */
     padding: 20px;
-    border-left: 1px solid #333; /* Uma linha fina na esquerda para delimitar */
+    border-left: 1px solid #444;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+    z-index: 10;
 }
 #history-container {
     flex: 1; /* Ocupa todo o espaço disponível */
