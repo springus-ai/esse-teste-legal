@@ -173,6 +173,10 @@ function finishAspectPhase() {
     state.stage = "aspect_result";
     save();
     
+    // MUDANÇA AQUI: Esconde o painel de chat para não encavalar
+    const diagPanel = document.getElementById('dialogue-panel');
+    if (diagPanel) diagPanel.classList.add('hide-ui');
+
     const resultDisplay = document.getElementById('result-display');
     const bottomUI = document.querySelector('.bottom-interaction-area');
     if (bottomUI) bottomUI.classList.add('hide-ui');
@@ -195,9 +199,16 @@ function finishAspectPhase() {
 function startClassPhase() {
     state.stage = "class_quiz";
     save();
+    
+    // MUDANÇA AQUI: Esconde o resultado e devolve o painel de chat
     document.getElementById('result-display').classList.add('hide-ui');
+    
+    const diagPanel = document.getElementById('dialogue-panel');
+    if (diagPanel) diagPanel.classList.remove('hide-ui');
+    
     const bottomUI = document.querySelector('.bottom-interaction-area');
     if (bottomUI) bottomUI.classList.remove('hide-ui');
+    
     renderClassQuiz();
 }
 
@@ -283,39 +294,16 @@ function finishClassPhase() {
     state.stage = "final_result";
     save();
     
-    const history = document.getElementById('history-container');
+    // MUDANÇA AQUI: Esconde o chat no resultado final também
+    const diagPanel = document.getElementById('dialogue-panel');
+    if (diagPanel) diagPanel.classList.add('hide-ui');
+    
     const bottomUI = document.querySelector('.bottom-interaction-area');
     if (bottomUI) bottomUI.classList.add('hide-ui');
     
     updateResultDisplay();
-
-    const r = document.createElement('div');
-    r.className = 'scenario-block entry-anim';
-    r.style.marginTop = "30px";
-
-    let html = `
-        <h2 style="color:var(--aspect-${viewingAspect.toLowerCase()})">▶ ANÁLISE COMPLETA</h2>
-        <p>Identidade primária: <strong>${viewingClass.toUpperCase()} OF ${viewingAspect.toUpperCase()}</strong>.</p>
-        <p style="font-size:0.9rem; color:#888; font-style:italic;">Clique nas variáveis abaixo para consultar outras descrições.</p>
-    `;
-
-    html += `<div style="margin-top: 25px; font-family:'Oswald', sans-serif; letter-spacing:1px; color: #fff;">RESULTADOS DE CLASSE:</div>`;
-    classScores.forEach(([cls, score]) => {
-        const color = `var(--aspect-${cls.toLowerCase()})`;
-        html += `<div onclick="changeViewClass('${cls}')" style="cursor:pointer; padding: 8px 12px; margin: 4px 0; border: 1px solid #333; border-radius: 4px; display: flex; justify-content: space-between;">
-                <strong style="color: ${color}">${cls}</strong><span style="color: #888">${score} pts</span></div>`;
-    });
-
-    html += `<div style="margin-top: 25px; font-family:'Oswald', sans-serif; letter-spacing:1px; color: #fff;">RESULTADOS DE ASPECTO:</div>`;
-    aspectScores.forEach(([asp, score]) => {
-        const color = `var(--aspect-${asp.toLowerCase()})`;
-        html += `<div onclick="changeViewAspect('${asp}')" style="cursor:pointer; padding: 8px 12px; margin: 4px 0; border: 1px solid #333; border-radius: 4px; display: flex; justify-content: space-between;">
-                <strong style="color: ${color}">${asp}</strong><span style="color: #888">${score} pts</span></div>`;
-    });
-
-    r.innerHTML = html;
-    history.appendChild(r);
-    history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
+    // (Opcional) Você pode manter o histórico visível se quiser, 
+    // mas para evitar o erro da imagem, o melhor é esconder o painel.
 }
 
 function changeViewAspect(newAspect) { viewingAspect = newAspect; updateResultDisplay(); }
