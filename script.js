@@ -57,7 +57,6 @@ function start() {
 
 function save() { localStorage.setItem('sburbState', JSON.stringify(state)); }
 
-// ================= FASE 1: ASPECTOS =================
 function renderElysium() {
     const history = document.getElementById('history-container');
     const options = document.getElementById('options-container');
@@ -77,7 +76,6 @@ function renderElysium() {
     sDiv.textContent = q.scenario || q.t || "Cenário não encontrado.";
     history.appendChild(sDiv);
 
-    // Rola para o início do NOVO cenário (Estilo DE)
     sDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     let delay = 1;
@@ -102,20 +100,17 @@ function renderElysium() {
 
     setTimeout(() => {
         const optsArray = q.options || q.opts || [];
-        
         optsArray.forEach((opt, idx) => {
             const b = document.createElement('div');
             b.className = 'option-item entry-anim';
-            const txt = opt.dialogue || opt.txt || "Opção";
-            b.innerHTML = `<span>${idx + 1}. ${txt}</span>`;
+            b.innerHTML = `<span>${idx + 1}. ${opt.dialogue}</span>`;
             b.onclick = () => { if(!isProcessing) handleChoice(opt, true); };
             options.appendChild(b);
         });
 
-        const skipIndex = optsArray.length + 1;
         const skipBtn = document.createElement('div');
         skipBtn.className = 'option-item entry-anim';
-        skipBtn.innerHTML = `<span>${skipIndex}. Nenhuma das anteriores.</span>`;
+        skipBtn.innerHTML = `<span>${optsArray.length + 1}. Nenhuma das anteriores.</span>`;
         skipBtn.onclick = () => { if(!isProcessing) handleChoice({ dialogue: "Nenhuma das anteriores.", weights: {} }, true); };
         options.appendChild(skipBtn);
 
@@ -130,10 +125,7 @@ function renderElysium() {
 
         options.classList.remove('disabled');
         isProcessing = false;
-        // Ao final, garante que o cenário ainda está visível se as opções forem muitas
-        setTimeout(() => {
-             sDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+        setTimeout(() => { sDiv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
     }, delay * 550);
 }
 
@@ -171,14 +163,6 @@ function goBack() {
     if (stateHistory.length === 0) return;
     state = stateHistory.pop();
     save();
-    const history = document.getElementById('history-container');
-    const rewindDiv = document.createElement('div');
-    rewindDiv.className = 'player-choice-block entry-anim';
-    rewindDiv.style.color = '#ff4444';
-    rewindDiv.style.borderLeftColor = '#ff4444';
-    rewindDiv.innerHTML = `VOCÊ — Pensando bem...`;
-    history.appendChild(rewindDiv);
-
     if (state.stage === "aspect_quiz") renderElysium();
     else if (state.stage === "class_quiz") renderClassQuiz();
 }
@@ -189,37 +173,26 @@ function finishAspectPhase() {
     state.stage = "aspect_result";
     save();
     
-    const history = document.getElementById('history-container');
     const resultDisplay = document.getElementById('result-display');
     const bottomUI = document.querySelector('.bottom-interaction-area');
-    
     if (bottomUI) bottomUI.classList.add('hide-ui');
-    const aspect = state.dominantAspect; 
-    const aspectLower = aspect.toLowerCase();
 
     if (resultDisplay) {
         resultDisplay.classList.remove('hide-ui');
         resultDisplay.style.display = 'flex';
-        const suaDescricao = classpectDescriptions[aspect] || "Descrição pendente."; 
+        const suaDescricao = classpectDescriptions[state.dominantAspect] || "Descrição pendente."; 
         resultDisplay.innerHTML = `
-            <img src="vamover/${aspect}.png" class="aspect-png" onerror="this.style.opacity='0'; this.src=''">
+            <img src="vamover/${state.dominantAspect}.png" class="aspect-png" onerror="this.style.opacity='0'; this.src=''">
             <div class="result-text-main entry-anim">
-                <h1 style="color: var(--aspect-${aspectLower})">${aspect}</h1>
+                <h1 style="color: var(--aspect-${state.dominantAspect.toLowerCase()})">${state.dominantAspect}</h1>
                 <div class="descricao-usuario">${suaDescricao}</div>
                 <button class="btn-bora-ver" onclick="startClassPhase()">Quero descobrir a minha Classe.</button>
             </div>
         `;
     }
-
-    const endDiv = document.createElement('div');
-    endDiv.className = 'scenario-block entry-anim';
-    endDiv.innerHTML = `<h2 style="color:var(--aspect-${aspectLower})">▶ ALINHAMENTO CONCLUÍDO: ${aspect.toUpperCase()}</h2>`;
-    history.appendChild(endDiv);
-    history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
 }
 
 function startClassPhase() {
-    stateHistory.push(JSON.parse(JSON.stringify(state)));
     state.stage = "class_quiz";
     save();
     document.getElementById('result-display').classList.add('hide-ui');
@@ -248,7 +221,6 @@ function renderClassQuiz() {
     sDiv.textContent = q.scenario || q.t || "Cenário não encontrado.";
     history.appendChild(sDiv);
 
-    // Rola para o início do NOVO cenário de classe
     sDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     let delay = 1;
@@ -296,24 +268,54 @@ function renderClassQuiz() {
 
         options.classList.remove('disabled');
         isProcessing = false;
-        setTimeout(() => {
-             sDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+        setTimeout(() => { sDiv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
     }, delay * 550);
 }
 
 function finishClassPhase() {
     const classScores = Object.entries(state.classScores).sort((a, b) => b[1] - a[1]);
     const aspectScores = Object.entries(state.aspectScores).sort((a, b) => b[1] - a[1]);
+
     state.dominantClass = classScores[0][0];
     viewingClass = state.dominantClass;
     viewingAspect = state.dominantAspect;
+
     state.stage = "final_result";
     save();
     
+    const history = document.getElementById('history-container');
     const bottomUI = document.querySelector('.bottom-interaction-area');
     if (bottomUI) bottomUI.classList.add('hide-ui');
+    
     updateResultDisplay();
+
+    const r = document.createElement('div');
+    r.className = 'scenario-block entry-anim';
+    r.style.marginTop = "30px";
+
+    let html = `
+        <h2 style="color:var(--aspect-${viewingAspect.toLowerCase()})">▶ ANÁLISE COMPLETA</h2>
+        <p>Identidade primária: <strong>${viewingClass.toUpperCase()} OF ${viewingAspect.toUpperCase()}</strong>.</p>
+        <p style="font-size:0.9rem; color:#888; font-style:italic;">Clique nas variáveis abaixo para consultar outras descrições.</p>
+    `;
+
+    html += `<div style="margin-top: 25px; font-family:'Oswald', sans-serif; letter-spacing:1px; color: #fff;">RESULTADOS DE CLASSE:</div>`;
+    classScores.forEach(([cls, score]) => {
+        const color = `var(--aspect-${cls.toLowerCase()})`;
+        html += `<div onclick="changeViewClass('${cls}')" style="cursor:pointer; padding: 8px 12px; margin: 4px 0; border: 1px solid #333; border-radius: 4px; display: flex; justify-content: space-between;">
+                <strong style="color: ${color}">${cls}</strong><span style="color: #888">${score} pts</span></div>`;
+    });
+
+    html += `<div style="margin-top: 25px; font-family:'Oswald', sans-serif; letter-spacing:1px; color: #fff;">RESULTADOS DE ASPECTO:</div>`;
+    aspectScores.forEach(([asp, score]) => {
+        const color = `var(--aspect-${asp.toLowerCase()})`;
+        html += `<div onclick="changeViewAspect('${asp}')" style="cursor:pointer; padding: 8px 12px; margin: 4px 0; border: 1px solid #333; border-radius: 4px; display: flex; justify-content: space-between;">
+                <strong style="color: ${color}">${asp}</strong><span style="color: #888">${score} pts</span></div>`;
+    });
+
+    r.innerHTML = html;
+    history.appendChild(r);
+    history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
 }
 
 function changeViewAspect(newAspect) { viewingAspect = newAspect; updateResultDisplay(); }
@@ -322,11 +324,19 @@ function changeViewClass(newClass) { viewingClass = newClass; updateResultDispla
 function updateResultDisplay() {
     const resultDisplay = document.getElementById('result-display');
     if (!resultDisplay) return;
+
     resultDisplay.classList.remove('hide-ui');
     resultDisplay.style.display = 'flex';
+
     const aspectLower = viewingAspect.toLowerCase();
     const descKey = `${viewingClass}:${viewingAspect}`;
-    let suaDescricao = classpectDescriptions[descKey] || `${viewingClass} de ${viewingAspect}.`;
+    let suaDescricao = classpectDescriptions[descKey];
+
+    if (!suaDescricao) {
+         const descClass = classpectDescriptions[viewingClass];
+         const descAspect = classpectDescriptions[viewingAspect];
+         suaDescricao = (descClass || "") + (descAspect || "");
+    }
 
     resultDisplay.innerHTML = `
         <img src="vamover/${viewingAspect}.png" class="aspect-png" onerror="this.style.opacity='0'">
